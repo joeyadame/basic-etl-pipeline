@@ -35,6 +35,16 @@ for i in range(-(-int(metadata_total_records)//5000)):
 
 df = pd.json_normalize(paginated_response)
 
+if(len(paginated_response) == int(metadata_total_records)):
+    print('metadata matches total records witin request\n', 
+        'metadata returned ', metadata_total_records, '\nrecords, paginated response contains',
+        len(paginated_response), 'records')
+else:
+    print('discrepency between metadata containing total records and amount of records returned by the request,\n',
+        'please verify the following:')
+    #I must specify the most likely causes of this issue as I dive further into this project
+
+
 df = df[['period', 'respondent', 'fueltype', 'value']]
 
 df["period"] = pd.to_datetime(df["period"])
@@ -66,7 +76,6 @@ try:
     print("Data exported successfully.")
 except OperationalError as e:
     print(f"Database connection failed: {e}")
-print(len(paginated_response))
 
 query = text("""
 SELECT 
