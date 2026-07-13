@@ -16,8 +16,6 @@ response.raise_for_status()
 response_json = response.json()
 metadata_total_records = response_json.get('response', {}).get('total', '0')
 print(metadata_total_records)
-print(type(response_json))
-
 
 paginated_response = []
 for i in range(-(-int(metadata_total_records)//5000)):
@@ -36,8 +34,8 @@ for i in range(-(-int(metadata_total_records)//5000)):
 df = pd.json_normalize(paginated_response)
 
 if(len(paginated_response) == int(metadata_total_records)):
-    print('metadata matches total records witin request\n', 
-        'metadata returned ', metadata_total_records, '\nrecords, paginated response contains',
+    print('metadata matches total records witin request', 
+        '\nmetadata returned ', metadata_total_records, 'records, \npaginated response contains',
         len(paginated_response), 'records')
 else:
     print('discrepency between metadata containing total records and amount of records returned by the request,\n',
@@ -55,11 +53,9 @@ dtype_mapping = {
 	'fueltype': VARCHAR(3),
 	'value': BIGINT
 }
-print(df.dtypes)
-print(df.shape)
+
 print(df.columns.tolist())
 print(df.head())
-print(df.info())
 
 engine = create_engine('postgresql+psycopg2://postgres@localhost:5432/eia_energy')
 
