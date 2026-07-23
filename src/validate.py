@@ -4,10 +4,12 @@
 
 def validate_record_count(metadata_total_records, paginated_response):
     if(len(paginated_response) == int(metadata_total_records)):
-        print('metadata matches total records witin request', 
-            '\nmetadata returned ', metadata_total_records, 'records, \npaginated response contains',
-            len(paginated_response), 'records')
+        return len(paginated_response)
     else:
-        print('discrepency between metadata containing total records and amount of records returned by the request,\n',
-            'please verify the following:')
-        #I must specify the most likely causes of this issue as I dive further into this project
+        return False
+
+def validate_transformation_preload(df, verified_record_count):
+    if(len(df) == verified_record_count):
+        return True
+    else: 
+        return False
