@@ -25,9 +25,7 @@ def load_dataframe(df, engine):
                 index=False,
                 dtype=dtype_mapping
             )
-        print("Data exported successfully.")
          #Post load inspection
-
         query = text("""
 
         SELECT 
@@ -41,13 +39,9 @@ def load_dataframe(df, engine):
             table_schema = 'public'
             AND table_name = 'daily_generation';
             """)
+        df_output = pd.read_sql_query(query, con=engine)
+        print(df_output)
 
-        try:
-            df_output = pd.read_sql_query(query, con=engine)
-            print(df_output)
-        except Exception as e:
-            print(f"Query failed: {e}")
-
-    except SQLAlchemyError as exc:
-        raise LoadError("Load or post-load inspection failed")
+    except SQLAlchemyError:
+        raise
 

@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-
+from sqlalchemy.exc import SQLAlchemyError
 from extract import extract_api_response, url
 from transform import transform_dataframe
 from load import load_dataframe
@@ -10,9 +10,12 @@ metadata_total_records, paginated_response = extract_api_response(url)
 
 true_record_count = validate_record_count(metadata_total_records, paginated_response)
 engine = create_engine('postgresql+psycopg2://postgres@localhost:5432/eia_energy')
-df = transform_dataframe(paginated_response)
-validate_transformation_preload(df, true_record_count)
-load_dataframe(df, engine)
-
+transformed_df = transform_dataframe(paginated_response)
+validate_transformation_preload(transformed_df, true_record_count)
+try:
+    load_dataframe(transformed_df, engine)
+except SQLAlchemyError as e:
+    print(f"Pipeline failed during load: {e}")
+    sys.exit(1)
 
 
