@@ -1,4 +1,4 @@
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.types import TIMESTAMP, VARCHAR, BIGINT
 from sqlalchemy import text
 import pandas as pd  
@@ -26,27 +26,28 @@ def load_dataframe(df, engine):
                 dtype=dtype_mapping
             )
         print("Data exported successfully.")
-    except OperationalError as e:
-        print(f"Database connection failed: {e}")
+         #Post load inspection
 
-    #Post load inspection
+        query = text("""
 
-    query = text("""
+        SELECT 
+            column_name,
+            data_type,
+            is_nullable,
+            character_maximum_length
+        FROM
+            information_schema.columns
+        WHERE
+            table_schema = 'public'
+            AND table_name = 'daily_generation';
+            """)
 
-    SELECT 
-        column_name,
-        data_type,
-        is_nullable,
-        character_maximum_length
-    FROM
-        information_schema.columns
-    WHERE
-        table_schema = 'public'
-        AND table_name = 'daily_generation';
-        """)
+        try:
+            df_output = pd.read_sql_query(query, con=engine)
+            print(df_output)
+        except Exception as e:
+            print(f"Query failed: {e}")
 
-    try:
-        df_output = pd.read_sql_query(query, con=engine)
-        print(df_output)
-    except Exception as e:
-        print(f"Query failed: {e}")
+    except SQLAlchemyError as exc:
+        raise LoadError("Load or post-load inspection failed")
+
