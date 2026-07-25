@@ -4,7 +4,7 @@ from extract import extract_api_response, url
 from transform import transform_dataframe
 from load import load_dataframe
 from validate import validate_record_count, validate_transformation_preload
-from exceptions import RowCountValidationError, DatabaseConectionError
+from exceptions import RowCountValidationError, DatabaseConnectionError
 import sys
 
 metadata_total_records, paginated_response = extract_api_response(url)
