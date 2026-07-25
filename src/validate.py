@@ -1,7 +1,8 @@
 # =====================
 # VALIDATE (functioned)
 # =====================
-import sys
+
+from exceptions import RowCountValidationError, DatabaseConectionError
 
 def validate_record_count(metadata_total_records, paginated_response):
     if(len(paginated_response) == int(metadata_total_records)):
