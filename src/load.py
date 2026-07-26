@@ -1,7 +1,7 @@
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.types import TIMESTAMP, VARCHAR, BIGINT
 from sqlalchemy import text
-from validate import validate_database_postload
+from validate import validate_database_postload, RowCountValidationError
 import pandas as pd  
 
 # =====================
@@ -26,10 +26,12 @@ def load_dataframe(df, engine, true_record_count):
                 index=False,
                 dtype=dtype_mapping
             )
-            query = text("SELECT COUNT(*) FROM daily_generation")
-            result: int = connection.execute(query).scalar()
-            validate_database_postload(result, true_record_count)
-
+            try:
+                query = text("SELECT COUNT(*) FROM daily_generation")
+                result: int = connection.execute(query).scalar()
+                validate_database_postload(result, true_record_count)
+            except RowCountValidationError:
+                raise
     except DatabaseError:
         raise
 

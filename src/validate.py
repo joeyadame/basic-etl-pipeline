@@ -6,14 +6,13 @@ class RowCountValidationError(Exception):
     pass
 
 def validate_extraction_records(metadata_total_records, paginated_response):
->>>>>>> 0fa309f (added a validation contract at load stage)
     if(len(paginated_response) == int(metadata_total_records)):
         return len(paginated_response)
     raise RowCountValidationError("Row counts do not match")
 
 def validate_transformation_preload(df, verified_record_count):
     if(len(df) == verified_record_count):
-        return True
+        return len(df)
     raise RowCountValidationError("Row counts do not match")
 
 def validate_database_postload(database_row_count, dataframe_row_count):
