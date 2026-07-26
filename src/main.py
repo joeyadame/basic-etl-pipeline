@@ -1,16 +1,16 @@
 from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import DatabaseError
 from extract import extract_api_response, url
 from transform import transform_dataframe
 from load import load_dataframe
-from validate import validate_record_count, validate_transformation_preload
-from exceptions import RowCountValidationError, DatabaseConnectionError
+from validate import validate_extraction_records, validate_transformation_preload, RowCountValidationError
+>>>>>>> 0fa309f (added a validation contract at load stage)
 import sys
 
 metadata_total_records, paginated_response = extract_api_response(url)
 
 try:
-    true_record_count = validate_record_count(metadata_total_records, paginated_response)
+    true_record_count = validate_extraction_records(metadata_total_records, paginated_response)
 except RowCountValidationError as e:
     print(f"API does not match metadata: {e}")
     sys.exit(1)
@@ -26,9 +26,11 @@ except RowCountValidationError as e:
     sys.exit(1)
 
 try:
-    load_dataframe(transformed_df, engine)
-except SQLAlchemyError as e:
+    load_dataframe(transformed_df, engine, true_record_count)
+except DatabaseError as e:
     print(f"Pipeline failed during load: {e}")
     sys.exit(1)
+
+
 
 

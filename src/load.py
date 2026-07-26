@@ -1,13 +1,14 @@
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.types import TIMESTAMP, VARCHAR, BIGINT
 from sqlalchemy import text
+from validate import validate_database_postload
 import pandas as pd  
 
 # =====================
 # LOAD
 # =====================
 
-def load_dataframe(df, engine):
+def load_dataframe(df, engine, true_record_count):
     dtype_mapping = {
         'period': TIMESTAMP,
         'respondent': VARCHAR(4),
@@ -25,23 +26,12 @@ def load_dataframe(df, engine):
                 index=False,
                 dtype=dtype_mapping
             )
-         #Post load inspection
-        query = text("""
+            query = text("SELECT COUNT(*) FROM daily_generation")
+            result: int = connection.execute(query).scalar()
+            validate_database_postload(result, true_record_count)
 
-        SELECT 
-            column_name,
-            data_type,
-            is_nullable,
-            character_maximum_length
-        FROM
-            information_schema.columns
-        WHERE
-            table_schema = 'public'
-            AND table_name = 'daily_generation';
-            """)
-        df_output = pd.read_sql_query(query, con=engine)
-        print(df_output)
-
-    except SQLAlchemyError:
+    except DatabaseError:
         raise
+
+
 
